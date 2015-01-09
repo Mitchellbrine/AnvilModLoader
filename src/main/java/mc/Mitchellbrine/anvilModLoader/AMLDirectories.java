@@ -9,10 +9,12 @@ import java.io.File;
  */
 public class AMLDirectories {
 
-    static File configDirectory = new File(getAMLDirectory(),"/config");
-    static File databaseDirectory = new File(getAMLDirectory(),"/databases");
+    static File configDirectory;
+    static File databaseDirectory;
 
     public AMLDirectories() {
+        configDirectory = new File(getAMLDirectory(),"/config");
+        databaseDirectory = new File(getAMLDirectory(),"/databases");
     }
 
     public static File getAMLDirectory() {
@@ -24,8 +26,8 @@ public class AMLDirectories {
     }
 
     public static void mkDir() {
-        if (!configDirectory.exists()) configDirectory.mkdir();
-        if (!databaseDirectory.exists()) databaseDirectory.mkdir();
+        if (!configDirectory.exists()) configDirectory.mkdirs();
+        if (!databaseDirectory.exists()) databaseDirectory.mkdirs();
     }
 
 }

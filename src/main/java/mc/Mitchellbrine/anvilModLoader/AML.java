@@ -2,14 +2,16 @@ package mc.Mitchellbrine.anvilModLoader;
 
 import mc.Mitchellbrine.anvilModLoader.database.*;
 import mc.Mitchellbrine.anvilModLoader.util.FileHelper;
-import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.relauncher.FMLInjectionData;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * Created by Mitchellbrine on 2015.
@@ -25,7 +27,6 @@ public class AML implements IFMLLoadingPlugin {
 
     public AML() {
         instance = this;
-        AMLDirectories.mkDir();
         instance.buildDatabase();
     }
 
@@ -59,89 +60,128 @@ public class AML implements IFMLLoadingPlugin {
      */
     public void buildDatabase() {
 
+        new AMLDirectories();
+        AMLDirectories.mkDir();
+
         // TODO: Do all the work for building databases
 
         File configDirectory = (File) AMLDirectories.data()[1];
 
-        for (File file : configDirectory.listFiles()) {
-            if (file.getName().endsWith(".zip") || file.getName().endsWith(".jar")) continue;
+        if (configDirectory.listFiles() != null) {
+            for (File file : configDirectory.listFiles()) {
+                if (file.getName().endsWith(".zip") || file.getName().endsWith(".jar")) continue;
 
-            try {
+                try {
 
-                ModDatabase database = new ModDatabase();
+                    ModDatabase database = new ModDatabase();
 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 
-                String s;
+                    String s;
 
-                while ((s = reader.readLine()) != null) {
+                    while ((s = reader.readLine()) != null) {
 
-                    boolean isCorrectVersion = false;
-                    boolean isConfig = false;
+                        boolean isCorrectVersion = false;
+                        boolean isConfig = false;
 
-                    if (s.startsWith("--") || !s.contains(":")) continue;
+                        if (s.startsWith("--") || !s.contains(":")) continue;
 
-                    int startingSubstring = 0;
+                        int startingSubstring = 0;
 
-                    if (s.startsWith("*")) {
-                        isCorrectVersion = true;
-                        startingSubstring++;
-                    } else if (s.startsWith("+")) {
-                        isConfig = true;
-                        startingSubstring++;
-                    }
-
-                    int startingSubstring2 = s.indexOf(":") + 1;
-
-                    if (s.contains(": ")) {
-                        startingSubstring2++;
-                    }
-
-                    if (!isConfig) {
-                        ModVersion version = new ModVersion(s.substring(startingSubstring, s.indexOf(":")), new URL(s.substring(startingSubstring2)));
-
-                        database.getVersions().add(version);
-
-                        if (isCorrectVersion && database.getCurrentVersion() == null) {
-                            database.setCurrentVersion(version);
+                        if (s.startsWith("*")) {
+                            isCorrectVersion = true;
+                            startingSubstring++;
+                        } else if (s.startsWith("+")) {
+                            isConfig = true;
+                            startingSubstring++;
                         }
-                        database.setDatabaseName(file.getName().substring(0, file.getName().lastIndexOf(".")));
-                    } else {
-                        for (ModVersion version : database.getVersions()) {
-                            if (version.getVersion().equalsIgnoreCase(s.substring(startingSubstring, s.indexOf(":")))) {
-                                version.setConfigLocation(new URL(s.substring(startingSubstring2)));
+
+                        int startingSubstring2 = s.indexOf(":") + 1;
+
+                        if (s.contains(": ")) {
+                            startingSubstring2++;
+                        }
+
+                        if (!isConfig) {
+                            ModVersion version = new ModVersion(s.substring(startingSubstring, s.indexOf(":")), new URL(s.substring(startingSubstring2)));
+
+                            database.getVersions().add(version);
+
+                            if (isCorrectVersion && database.getCurrentVersion() == null) {
+                                database.setCurrentVersion(version);
+                            }
+                            database.setDatabaseName(file.getName().substring(0, file.getName().lastIndexOf(".")));
+                        } else {
+                            for (ModVersion version : database.getVersions()) {
+                                if (version.getVersion().equalsIgnoreCase(s.substring(startingSubstring, s.indexOf(":")))) {
+                                    version.setConfigLocation(new URL(s.substring(startingSubstring2)));
+                                }
                             }
                         }
+
+
                     }
 
+                    database.buildDirectories();
 
+                    databases.add(database);
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
 
-                database.buildDirectories();
-
-                databases.add(database);
-
-            } catch (IOException ex) {
-                ex.printStackTrace();
             }
+    }
 
+        try {
+            obtainAllCorrectVersions();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
-
-        obtainAllCorrectVersions();
 
     }
 
     /**
      * This is where a majority of the work takes place, downloading new versions/mods
      */
-    public void obtainAllCorrectVersions() {
+    public void obtainAllCorrectVersions() throws IOException {
         File modsDir = new File((File)FMLInjectionData.data()[6],"/mods");
-        for (ModDatabase database : databases) {
-            for (File mod : modsDir.listFiles()) {
-                if (mod == null) continue;
-                if (mod.getName().contains("AnvilModLoader")) continue;
+        for (File mod : modsDir.listFiles()) {
+            if (mod == null) continue;
+            if (mod.getName().contains("AnvilModLoader")) continue;
+            if (!mod.getName().endsWith(".zip") && !mod.getName().endsWith(".jar"))  { mod.delete(); continue; }
+
+            ZipFile zip = new ZipFile(mod);
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+
+            boolean containsCoreMod = false;
+
+            while(entries.hasMoreElements()){
+                ZipEntry entry = entries.nextElement();
+                InputStream stream = zip.getInputStream(entry);
+
+                if (!entry.getName().endsWith(".MF")) continue;
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+
+                String s;
+
+                while ((s = reader.readLine()) != null) {
+                    if (s.contains("FMLCorePlugin:")) {
+                        containsCoreMod = true;
+                    }
+                }
+
+                reader.close();
+
+            }
+
+            if (!containsCoreMod) {
                 mod.delete();
             }
+        }
+
+        for (ModDatabase database : databases) {
 
             if (database.getCurrentVersion() != null) {
                 ModVersion recommended = database.getCurrentVersion();
