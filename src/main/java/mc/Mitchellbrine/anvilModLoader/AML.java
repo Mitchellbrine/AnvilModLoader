@@ -2,8 +2,12 @@ package mc.Mitchellbrine.anvilModLoader;
 
 import mc.Mitchellbrine.anvilModLoader.database.*;
 import mc.Mitchellbrine.anvilModLoader.util.FileHelper;
+
 import net.minecraftforge.fml.relauncher.FMLInjectionData;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+
+//import cpw.fml.relauncher.FMLInjectionData;
+//import cpw.fml.relauncher.IFMLLoadingPlugin;
 
 import java.io.*;
 import java.net.URL;
