@@ -2,6 +2,7 @@ package mc.Mitchellbrine.anvilModLoader;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+
 import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModMetadata;
@@ -10,7 +11,12 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
+//import cpw.fml.common.DummyModContainer;
+//import cpw.fml.common.LoadController;
+//import cpw.fml.common.ModMetadata;
+//import cpw.fml.common.FMLInitializationEvent;
+//import cpw.fml.common.FMLPostInitializationEvent;
+
 import java.util.Arrays;
 
 /**
