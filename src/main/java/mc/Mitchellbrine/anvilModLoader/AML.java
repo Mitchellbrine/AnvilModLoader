@@ -1,16 +1,16 @@
 package mc.Mitchellbrine.anvilModLoader;
 
-import com.sun.javafx.fxml.expression.BinaryExpression;
+//import com.sun.javafx.fxml.expression.BinaryExpression;
 import mc.Mitchellbrine.anvilModLoader.database.*;
-import mc.Mitchellbrine.anvilModLoader.util.ANSIColor;
+//import mc.Mitchellbrine.anvilModLoader.util.ANSIColor;
 import mc.Mitchellbrine.anvilModLoader.util.FileHelper;
 
-import net.minecraftforge.fml.relauncher.FMLInjectionData;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
-import org.apache.commons.codec.BinaryEncoder;
+//import net.minecraftforge.fml.relauncher.FMLInjectionData;
+//import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+//import org.apache.commons.codec.BinaryEncoder;
 
-//import cpw.fml.relauncher.FMLInjectionData;
-//import cpw.fml.relauncher.IFMLLoadingPlugin;
+import cpw.mods.fml.relauncher.FMLInjectionData;
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 import java.io.*;
 import java.net.URL;
