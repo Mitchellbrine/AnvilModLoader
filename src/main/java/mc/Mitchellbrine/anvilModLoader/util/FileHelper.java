@@ -35,7 +35,7 @@ public class FileHelper {
                 }*/
     }
 
-    private static void unzip(File zipfile, File directory) throws IOException {
+    public static void unzip(File zipfile, File directory) throws IOException {
         ZipFile zfile = new ZipFile(zipfile);
         Enumeration<? extends ZipEntry> entries = zfile.entries();
         while (entries.hasMoreElements()) {

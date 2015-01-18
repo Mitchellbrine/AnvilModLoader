@@ -12,6 +12,7 @@ public class ModVersion {
     private String version;
     private File versionDirectory;
     private URL configLocation;
+    private URL absoluteLocation;
 
     public ModVersion(String versionName, URL fileLocation) {
         this.version = versionName;
@@ -39,5 +40,9 @@ public class ModVersion {
     public void setConfigLocation(URL configLocation) {
         this.configLocation = configLocation;
     }
+
+    public URL getAbsoluteFile() { return this.absoluteLocation; }
+
+    public void setAbsoluteLocation(URL absolute) { this.absoluteLocation = absolute; }
 
 }
